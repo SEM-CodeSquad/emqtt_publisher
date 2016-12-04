@@ -1,0 +1,23 @@
+{application, emqtt_publisher,
+ [{description, "An OTP application"},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {mod, { emqtt_publisher_app, []}},
+  {applications,
+   [kernel,
+    stdlib,
+    sasl,
+    cowlib,
+    ranch,
+    cowboy,
+    emqttc
+   ]},
+  {env,[{client_id, "SmartMirror_Emqtt"},
+                     {port, 8080}
+  ]},
+  {modules, [emqtt_publisher_app, emqtt_publisher_sup, request_handler, emqtt_manager, http_conn]},
+
+  {maintainers, []},
+  {licenses, []},
+  {links, []}
+ ]}.
