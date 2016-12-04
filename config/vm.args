@@ -1,0 +1,6 @@
+-sname emqtt_publisher
+
+-setcookie emqtt_publisher_cookie
+
++K true
++A30
