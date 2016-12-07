@@ -20,6 +20,8 @@
 %%====================================================================
 %% Initial function that receives the request and forward it to check the request.
 init(Req0, Opts) ->
+  {{Year,Month,Day},{Hour,Min,Sec}} = erlang:localtime(),
+  io:format("[~p/~p/~p] at [~p:~p:~p] Request [~p] ~n", [Year, Month, Day, Hour, Min, Sec, Req0]),
   Method = cowboy_req:method(Req0),
   check_request(Req0, Method),
   {ok, Req0, Opts}.

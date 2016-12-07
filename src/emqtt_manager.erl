@@ -57,13 +57,16 @@ monitor_publisher(Hostname, Topic, Msg, QoS, Retain, N) ->
   monitor_handler(Pid, Hostname, Topic, Msg, QoS, Retain, N).
 
 %% Auxiliary function that monitors the publisher if the publisher crashes it will attempt to publish for 2 more times.
-monitor_handler(_Pid, _Hostname, _Topic, _Msg, _QoS, _Retain, 0) -> io:format("Failed to Publish! ~n");
+monitor_handler(_Pid, _Hostname, _Topic, _Msg, _QoS, _Retain, 0) -> {{Year,Month,Day},{Hour,Min,Sec}} = erlang:localtime(),
+                                                                    io:format("[~p/~p/~p] at [~p:~p:~p] Failed to Publish! ~n", [Year, Month, Day, Hour, Min, Sec]);
 monitor_handler(Pid, Hostname, Topic, Msg, QoS, Retain, N) ->
   receive
-    {'DOWN', _Ref, process, Pid, normal}  -> io:format("Published with Success! ~n");
+    {'DOWN', _Ref, process, Pid, normal}  -> {{Year,Month,Day},{Hour,Min,Sec}} = erlang:localtime(),
+                                             io:format("[~p/~p/~p] at [~p:~p:~p] Published with Success! ~n", [Year, Month, Day, Hour, Min, Sec]);
     {'DOWN', _Ref, process, Pid, crash}   -> io:format("Trying for the ~p time! ~n", [N-1]),
                                              monitor_publisher(Hostname, Topic, Msg, QoS, Retain, N-1);
-    {'DOWN', _Ref, process, Pid, Reason} -> io:format("Failed to Publish. Reason = ~p ~n", [Reason]),
+    {'DOWN', _Ref, process, Pid, Reason} -> {{Year,Month,Day},{Hour,Min,Sec}} = erlang:localtime(),
+                                            io:format("[~p/~p/~p] at [~p:~p:~p] Failed to Publish. Reason = ~p ~n", [Year, Month, Day, Hour, Min, Sec, Reason]),
                                             monitor_publisher(Hostname, Topic, Msg, QoS, Retain, N-1)
 
   after 3000                              -> io:format("Time Out! ~n")
@@ -79,6 +82,8 @@ init_broker(Host) ->
       timer:sleep(100),
       presence_message(Pid),
       io:format("Presence Msg Published! ~n"),
+      {{Year,Month,Day},{Hour,Min,Sec}} = erlang:localtime(),
+      io:format("[~p/~p/~p] at [~p:~p:~p] ~n", [Year, Month, Day, Hour, Min, Sec]),
       Pid
 
   catch
