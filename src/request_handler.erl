@@ -23,15 +23,16 @@ init(Req0, Opts) ->
   {{Year,Month,Day},{Hour,Min,Sec}} = erlang:localtime(),
   io:format("[~p/~p/~p] at [~p:~p:~p] Request [~p] ~n", [Year, Month, Day, Hour, Min, Sec, Req0]),
   Method = cowboy_req:method(Req0),
-  check_request(Req0, Method),
+  Id = cowboy_req:qs(Req0),
+  check_request(Req0, Method, Id),
   {ok, Req0, Opts}.
 
 %% Function that checks if the request method is the expected one and answers the requester according to the request
 %% method. If the request method is the one expected it starts the function parse_qs in a new process.
-check_request(Req, <<"POST">>) ->
-  cowboy_req:reply(200, [{<<"content-type">>, <<"text/plain; charset=utf-8">>}], gen_html(), Req),
+check_request(Req, <<"POST">>, Id) ->
+  cowboy_req:reply(200, [{<<"content-type">>, <<"text/plain; charset=utf-8">>}], gen_html(Id), Req),
   spawn(fun() -> parse_qs(Req) end);
-check_request(Req, _) ->
+check_request(Req, _, _) ->
   %% Method not allowed.
   cowboy_req:reply(405, Req).
 
@@ -61,8 +62,8 @@ publish(_, _, _, _, _, _, _) ->
   io:format("Method not allowed").
 
 %% Function that generate the echo reply that is send to the requester
-gen_html() ->
-  [<<"Message Received!">>].
+gen_html(Id) ->
+  [<<"Message Received! ">>, <<" ">>,Id, <<" ">>].
 
 %% Function that terminates the request handler.
 terminate(_Reason, _Req, _State) ->
