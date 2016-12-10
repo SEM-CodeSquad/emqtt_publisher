@@ -24,14 +24,14 @@ init(Req0, Opts) ->
   io:format("[~p/~p/~p] at [~p:~p:~p] Request [~p] ~n", [Year, Month, Day, Hour, Min, Sec, Req0]),
   Method = cowboy_req:method(Req0),
   Id = cowboy_req:qs(Req0),
-  check_request(Req0, Method, Id),
-  {ok, Req0, Opts}.
+  Req = check_request(Req0, Method, Id),
+  {ok, Req, Opts}.
 
 %% Function that checks if the request method is the expected one and answers the requester according to the request
 %% method. If the request method is the one expected it starts the function parse_qs in a new process.
 check_request(Req, <<"POST">>, Id) ->
-  cowboy_req:reply(200, [{<<"content-type">>, <<"text/plain; charset=utf-8">>}], gen_html(Id), Req),
-  spawn(fun() -> parse_qs(Req) end);
+  parse_qs(Req),
+  cowboy_req:reply(200, [{<<"content-type">>, <<"text/plain; charset=utf-8">>}], gen_html(Id), Req);
 check_request(Req, _, _) ->
   %% Method not allowed.
   cowboy_req:reply(405, Req).
